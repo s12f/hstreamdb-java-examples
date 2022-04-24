@@ -9,6 +9,7 @@
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'application'
+    id "com.diffplug.spotless" version "6.2.0"
 }
 
 repositories {
@@ -20,7 +21,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'io.hstream:hstreamdb-java:0.7.1-SNAPSHOT'
+    implementation 'io.hstream:hstreamdb-java:0.8.0-SNAPSHOT'
 }
 
 application {
@@ -30,4 +31,16 @@ application {
 
 tasks.named('test') {
     // Use JUnit Platform for unit tests.
+}
+
+spotless {
+    java {
+        googleJavaFormat()
+    }
+
+    groovyGradle {
+        target '*.gradle'
+        greclipse()
+        indentWithSpaces()
+    }
 }

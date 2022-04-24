@@ -1,11 +1,9 @@
 package docs.code.examples;
 
-import io.hstream.Record;
 import io.hstream.*;
-
+import io.hstream.Record;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -13,7 +11,7 @@ public class WriteDataBufferedExample {
   public static void main(String[] args) {
     // TODO (developers): Replace these variables for your own use cases.
     String serviceUrl = "192.168.1.170:1234";
-    String streamName1 = "demo3";
+    String streamName1 = "demo2";
 
     // We do not recommend write both raw data and HRecord data into the same stream.
     HStreamClient client = HStreamClient.builder().serviceUrl(serviceUrl).build();
@@ -29,18 +27,22 @@ public class WriteDataBufferedExample {
     int maxSizeBeforeFlush = 4096; // default: 4096(Bytes), disabled if the value <= 0
     BufferedProducer producer =
         client.newBufferedProducer().stream(streamName)
-            .recordCountLimit(maxNumberOfRecordBeforeFlush) // optional
-            .flushIntervalMs(maxTimeIntervalBeforeFlush) // optional
-            .maxBytesSize(maxSizeBeforeFlush) // optional
+            //            .recordCountLimit(maxNumberOfRecordBeforeFlush) // optional
+            //            .flushIntervalMs(maxTimeIntervalBeforeFlush) // optional
+            //            .maxBytesSize(maxSizeBeforeFlush) // optional
             .build();
-    List<CompletableFuture<RecordId>> recordIds = new ArrayList<>();
-    Random random = new Random();
+    List<CompletableFuture<String>> recordIds = new ArrayList<>();
 
-    for (int i = 0; i < 100; i++) {
-      double temp = random.nextInt(100) / 10.0 + 15 ;
-      HRecord hRecord = HRecord.newBuilder().put("temperature", temp).build();
+    for (int i = 0; i < 3000; i++) {
+      HRecord hRecord =
+          HRecord.newBuilder()
+              .put("int", 10)
+              .put("boolean", true)
+              .put("array", HArray.newBuilder().add(1).add(2).add(3).build())
+              .put("string", "h".repeat(1))
+              .build();
       Record record = Record.newBuilder().hRecord(hRecord).build();
-      CompletableFuture<RecordId> recordId = producer.write(record);
+      CompletableFuture<String> recordId = producer.write(record);
       recordIds.add(recordId);
     }
     producer.flush();

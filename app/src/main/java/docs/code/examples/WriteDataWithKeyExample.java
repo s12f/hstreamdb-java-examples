@@ -1,8 +1,7 @@
 package docs.code.examples;
 
-import io.hstream.Record;
 import io.hstream.*;
-
+import io.hstream.Record;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -12,8 +11,8 @@ import java.util.concurrent.ExecutionException;
 public class WriteDataWithKeyExample {
   public static void main(String[] args) {
     // TODO (developers): Replace these variables for your own use cases.
-    String serviceUrl = "192.168.1.170:1234";
-    String streamName = "demo1";
+    String serviceUrl = "192.168.1.170:51781";
+    String streamName = "ccc";
 
     // We do not recommend write both raw data and HRecord data into the same stream.
     HStreamClient client = HStreamClient.builder().serviceUrl(serviceUrl).build();
@@ -23,31 +22,31 @@ public class WriteDataWithKeyExample {
   public static void writeHRecordDataWithKey(HStreamClient client, String streamName) {
     // For demonstrations, we would use the following as our ordering keys for the records.
     // As the documentations mentioned, if we do not give any ordering key, it will get a default
-    // key and
-    // mapped to some default shard.
+    // key and be mapped to some default shard.
     String key1 = "South";
     String key2 = "North";
+
     // Create a buffered producer with default triggers.
     BufferedProducer producer = client.newBufferedProducer().stream(streamName).build();
 
-    List<CompletableFuture<RecordId>> recordIds = new ArrayList<>();
+    List<CompletableFuture<String>> recordIds = new ArrayList<>();
     Random random = new Random();
 
     for (int i = 0; i < 100; i++) {
-      double temp = random.nextInt(100) / 10.0 + 15 ;
-      HRecord hRecord = HRecord.newBuilder().put("temperature", temp).put("withKey", 1).build();
+      double temp = random.nextInt(100) / 10.0 + 15;
       Record record;
-      if ((i % 2) == 0) {
+      if ((i % 3) == 0) {
+        HRecord hRecord = HRecord.newBuilder().put("temperature", temp).put("withKey", 1).build();
         record = Record.newBuilder().hRecord(hRecord).orderingKey(key1).build();
       } else {
+        HRecord hRecord = HRecord.newBuilder().put("temperature", temp).put("withKey", 2).build();
         record = Record.newBuilder().hRecord(hRecord).orderingKey(key2).build();
       }
 
-      CompletableFuture<RecordId> recordId = producer.write(record);
+      CompletableFuture<String> recordId = producer.write(record);
       recordIds.add(recordId);
     }
-    producer.flush();
-    producer.close();
+    //    producer.flush();
     System.out.println(
         "Wrote message IDs: "
             + recordIds.stream()
@@ -61,5 +60,6 @@ public class WriteDataWithKeyExample {
                       return "";
                     })
                 .toList());
+    producer.close();
   }
 }
