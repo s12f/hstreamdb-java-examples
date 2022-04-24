@@ -6,19 +6,24 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 public class WriteDataSimpleExample {
-  public static void main(String[] args) {
+  public static void main(String[] args) throws Exception {
     // TODO (developers): Replace these variables for your own use cases.
-    String serviceUrl = "192.168.1.170:1234";
-    String streamName1 = "demo3";
-    String streamName2 = "demo2";
+    String serviceUrl = "127.0.0.1:6570";
+    if (System.getenv("serviceUrl") != null) {
+      serviceUrl = System.getenv("serviceUrl");
+    }
+
+    String streamName1 = "stream_h_records";
+    String streamName2 = "stream_raw_records";
 
     // We do not recommend write both raw data and HRecord data into the same stream.
     HStreamClient client = HStreamClient.builder().serviceUrl(serviceUrl).build();
 
     writeHRecordData(client, streamName1);
+    writeRawData(client, streamName2);
+    client.close();
   }
 
   public static void writeHRecordData(HStreamClient client, String streamName) {
@@ -38,11 +43,7 @@ public class WriteDataSimpleExample {
       Record record = Record.newBuilder().hRecord(hRecord).build();
       // If the data is written successfully, returns a server-assigned record id
       CompletableFuture<String> recordId = producer.write(record);
-      try {
-        System.out.println("Wrote message ID: " + recordId.get());
-      } catch (InterruptedException | ExecutionException e) {
-        e.printStackTrace();
-      }
+      System.out.println("Wrote message ID: " + recordId.join());
     }
   }
 
@@ -53,11 +54,7 @@ public class WriteDataSimpleExample {
       Record record =
           Record.newBuilder().rawRecord(message.getBytes(StandardCharsets.UTF_8)).build();
       CompletableFuture<String> recordId = producer.write(record);
-      try {
-        System.out.println("Published message ID: " + recordId.get());
-      } catch (InterruptedException | ExecutionException e) {
-        e.printStackTrace();
-      }
+      System.out.println("Published message ID: " + recordId.join());
     }
   }
 }

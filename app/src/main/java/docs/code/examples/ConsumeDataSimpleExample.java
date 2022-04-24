@@ -9,14 +9,19 @@ import io.hstream.Subscription;
 import java.util.concurrent.TimeoutException;
 
 public class ConsumeDataSimpleExample {
-  public static void main(String[] args) {
-    String serviceUrl = "192.168.1.170:1234";
-    //    String serviceUrl = "your-service-url";
-    String streamName = "your-stream-name";
+  public static void main(String[] args) throws Exception {
+    String serviceUrl = "127.0.0.1:6570";
+    if (System.getenv("serviceUrl") != null) {
+      serviceUrl = System.getenv("serviceUrl");
+    }
+
+    String streamName = "stream_h_records";
     String subscriptionId = "your-subscription-id";
     HStreamClient client = HStreamClient.builder().serviceUrl(serviceUrl).build();
     makeSubscriptionExample(client, streamName, subscriptionId);
     consumeDataFromSubscriptionExample(client, subscriptionId);
+    client.deleteSubscription(subscriptionId);
+    client.close();
   }
 
   public static void makeSubscriptionExample(
@@ -39,14 +44,17 @@ public class ConsumeDataSimpleExample {
         client
             .newConsumer()
             .subscription(subscriptionId)
+            // optional, if it is not set, client will generate a unique id.
             .name("consumer_1")
             .hRecordReceiver(receiver)
             .build();
+    consumer.startAsync().awaitRunning();
     try {
-      consumer.startAsync().awaitRunning();
-      consumer.awaitTerminated(30, SECONDS);
+      // sleep 5s for consuming records
+      consumer.awaitTerminated(5, SECONDS);
     } catch (TimeoutException e) {
-      consumer.stopAsync();
+      // stop consumer
+      consumer.stopAsync().awaitTerminated();
     }
   }
 }
