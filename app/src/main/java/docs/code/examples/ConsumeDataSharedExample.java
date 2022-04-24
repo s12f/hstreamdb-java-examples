@@ -9,17 +9,34 @@ import io.hstream.Subscription;
 import java.util.concurrent.TimeoutException;
 
 public class ConsumeDataSharedExample {
-  public static void main(String[] args) {
-    String serviceUrl = "192.168.1.170:1234";
-    //    String serviceUrl = "your-service-url";
-    String stream = "your-stream-name";
+  public static void main(String[] args) throws Exception {
+    String serviceUrl = "127.0.0.1:6570";
+    if (System.getenv("serviceUrl") != null) {
+      serviceUrl = System.getenv("serviceUrl");
+    }
+
+    String stream = "stream_h_records";
     String subscription = "your-subscription-id";
     String consumer1 = "your-consumer1-name";
     String consumer2 = "your-consumer2-name";
     HStreamClient client = HStreamClient.builder().serviceUrl(serviceUrl).build();
+    // create a subscription
     makeSubscriptionExample(client, stream, subscription);
-    consumeDataFromSubscriptionSharedExample(client, subscription, consumer1);
-    consumeDataFromSubscriptionSharedExample(client, subscription, consumer2);
+
+    // create two consumers to consume records including two ordering keys.
+    Thread t1 =
+        new Thread(() -> consumeDataFromSubscriptionSharedExample(client, subscription, consumer1));
+    Thread t2 =
+        new Thread(() -> consumeDataFromSubscriptionSharedExample(client, subscription, consumer2));
+    t1.start();
+    t2.start();
+    t1.join();
+    t2.join();
+
+    // delete subscription
+    client.deleteSubscription(subscription);
+    // close client
+    client.close();
   }
 
   public static void makeSubscriptionExample(
@@ -46,10 +63,12 @@ public class ConsumeDataSharedExample {
             .hRecordReceiver(receiver)
             .build();
     try {
+      // sleep 5s for consuming records
       consumer.startAsync().awaitRunning();
-      consumer.awaitTerminated(30, SECONDS);
+      consumer.awaitTerminated(5, SECONDS);
     } catch (TimeoutException e) {
-      consumer.stopAsync();
+      // stop consumer
+      consumer.stopAsync().awaitTerminated();
     }
   }
 }

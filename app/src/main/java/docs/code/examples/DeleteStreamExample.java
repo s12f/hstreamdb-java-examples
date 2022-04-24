@@ -6,12 +6,18 @@ public class DeleteStreamExample {
   public static void main(String[] args) throws Exception {
     // TODO(developer): Replace these variables before running the sample.
     // String serviceUrl = "your-service-url-address";
-    String serviceUrl = "192.168.1.170:1234";
-    String streamName = "your-stream-name";
+    String serviceUrl = "127.0.0.1:6570";
+    if (System.getenv("serviceUrl") != null) {
+      serviceUrl = System.getenv("serviceUrl");
+    }
+
+    String streamName1 = "stream_h_records";
+    String streamName2 = "stream_raw_records";
 
     HStreamClient client = HStreamClient.builder().serviceUrl(serviceUrl).build();
-    deleteStreamExample(client, streamName);
-    deleteStreamForceExample(client, streamName);
+    deleteStreamExample(client, streamName1);
+    deleteStreamForceExample(client, streamName2);
+    client.close();
   }
 
   public static void deleteStreamExample(HStreamClient client, String streamName) {

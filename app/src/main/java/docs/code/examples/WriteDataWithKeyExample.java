@@ -6,17 +6,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 public class WriteDataWithKeyExample {
-  public static void main(String[] args) {
+  public static void main(String[] args) throws Exception {
     // TODO (developers): Replace these variables for your own use cases.
-    String serviceUrl = "192.168.1.170:51781";
-    String streamName = "ccc";
+    String serviceUrl = "127.0.0.1:6570";
+    if (System.getenv("serviceUrl") != null) {
+      serviceUrl = System.getenv("serviceUrl");
+    }
 
-    // We do not recommend write both raw data and HRecord data into the same stream.
+    String streamName = "stream_h_records";
+
     HStreamClient client = HStreamClient.builder().serviceUrl(serviceUrl).build();
     writeHRecordDataWithKey(client, streamName);
+    client.close();
   }
 
   public static void writeHRecordDataWithKey(HStreamClient client, String streamName) {
@@ -26,7 +29,7 @@ public class WriteDataWithKeyExample {
     String key1 = "South";
     String key2 = "North";
 
-    // Create a buffered producer with default triggers.
+    // Create a buffered producer with default BatchSetting and FlowControlSetting.
     BufferedProducer producer = client.newBufferedProducer().stream(streamName).build();
 
     List<CompletableFuture<String>> recordIds = new ArrayList<>();
@@ -46,20 +49,7 @@ public class WriteDataWithKeyExample {
       CompletableFuture<String> recordId = producer.write(record);
       recordIds.add(recordId);
     }
-    //    producer.flush();
-    System.out.println(
-        "Wrote message IDs: "
-            + recordIds.stream()
-                .map(
-                    (x) -> {
-                      try {
-                        return x.get();
-                      } catch (InterruptedException | ExecutionException e) {
-                        e.printStackTrace();
-                      }
-                      return "";
-                    })
-                .toList());
     producer.close();
+    System.out.println("Wrote message IDs: " + recordIds.stream().map(CompletableFuture::join));
   }
 }
