@@ -40,6 +40,8 @@ public class ConsumeDataSimpleExample {
           System.out.println("Received a record :" + hRecord.getHRecord());
           responder.ack();
         });
+    // Consumer is a Service(ref:
+    // https://guava.dev/releases/19.0/api/docs/com/google/common/util/concurrent/Service.html)
     Consumer consumer =
         client
             .newConsumer()
@@ -48,6 +50,7 @@ public class ConsumeDataSimpleExample {
             .name("consumer_1")
             .hRecordReceiver(receiver)
             .build();
+    // start Consumer as a background service and return
     consumer.startAsync().awaitRunning();
     try {
       // sleep 5s for consuming records
