@@ -38,8 +38,8 @@ public class WriteDataBufferedExample {
             .ageLimit(100)
             .build();
 
-    // FlowControlSetting is to control total records(including buffered batch records and sending
-    // records}.
+    // FlowControlSetting is to control total records,
+    // including buffered batch records and sending records
     FlowControlSetting flowControlSetting =
         FlowControlSetting.newBuilder()
             // Optional, the default: 104857600(100MB), total bytes limit, including buffered batch
@@ -48,7 +48,10 @@ public class WriteDataBufferedExample {
             .bytesLimit(40960)
             .build();
     BufferedProducer producer =
-        client.newBufferedProducer().stream(streamName).batchSetting(batchSetting).build();
+        client.newBufferedProducer().stream(streamName)
+            .batchSetting(batchSetting)
+            .flowControlSetting(flowControlSetting)
+            .build();
 
     List<CompletableFuture<String>> recordIds = new ArrayList<>();
     Random random = new Random();
