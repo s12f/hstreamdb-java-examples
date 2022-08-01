@@ -2,7 +2,7 @@ version: "3.5"
 
 services:
   hserver0:
-    image: hstreamdb/hstream:v0.8.0
+    image: hstreamdb/hstream:v0.9.0
     depends_on:
       - zookeeper
       - hstore
@@ -25,6 +25,7 @@ services:
         --internal-port 6571 \
         --server-id 100 \
         --address $$(hostname -I | awk '{print $$1}') \
+        --seed-nodes $$(hostname -I | awk '{print $$1}'):6571  \
         --zkuri zookeeper:2181 \
         --store-config /data/store/logdevice.conf \
         --store-admin-host hstore --store-admin-port 6440
@@ -50,7 +51,7 @@ services:
           -gRPCServerPort 6570
 
   hstore:
-    image: hstreamdb/hstream:v0.8.0
+    image: hstreamdb/hstream:v0.9.0
     networks:
       - hstreamdb-java-examples
     volumes:
