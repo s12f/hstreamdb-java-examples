@@ -19,7 +19,7 @@ public class ConsumeDataSharedExample {
     String consumer2 = "your_consumer2-name";
     HStreamClient client = HStreamClient.builder().serviceUrl(serviceUrl).build();
 
-    // create two consumers to consume records including two ordering keys.
+    // create two consumers to consume records with several partition keys.
     Thread t1 =
         new Thread(() -> consumeDataFromSubscriptionSharedExample(client, subscription, consumer1));
     Thread t2 =

@@ -23,8 +23,8 @@ public class WriteDataWithKeyExample {
   }
 
   public static void writeHRecordDataWithKey(HStreamClient client, String streamName) {
-    // For demonstrations, we would use the following as our ordering keys for the records.
-    // As the documentations mentioned, if we do not give any ordering key, it will get a default
+    // For demonstrations, we would use the following as our partition keys for the records.
+    // As the documentations mentioned, if we do not give any partition key, it will get a default
     // key and be mapped to some default shard.
     String key1 = "South";
     String key2 = "North";
