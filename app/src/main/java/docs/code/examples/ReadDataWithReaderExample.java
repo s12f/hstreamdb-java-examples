@@ -3,7 +3,6 @@ package docs.code.examples;
 import static io.hstream.StreamShardOffset.SpecialOffset.EARLIEST;
 
 import io.hstream.*;
-import io.hstream.Record;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
