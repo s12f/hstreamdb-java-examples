@@ -34,7 +34,7 @@ public class ReadDataWithReaderExample {
             .shardOffset(offset) // default: EARLIEST
             .timeoutMs(1000) // default: 0
             .build();
-    CompletableFuture<List<Record>> records =
+    CompletableFuture<List<ReceivedRecord>> records =
         reader.read(10); // Specify the maximum available records a reader will get for one read
     System.out.println("Read records: " + records.join());
   }
