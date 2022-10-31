@@ -21,7 +21,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'io.hstream:hstreamdb-java:0.10.0-SNAPSHOT'
+    implementation 'io.hstream:hstreamdb-java:0.10.0'
 }
 
 application {
